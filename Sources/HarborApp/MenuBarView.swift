@@ -6,6 +6,7 @@ struct MenuBarView: View {
     @Bindable var model: SearchModel
     let openMain: () -> Void
     @State private var query = ""
+    @State private var displayMenuHovered = false
     @AppStorage("menuBarDisplay") private var display = MenuBarDisplay.arrows.rawValue
 
     var body: some View {
@@ -51,11 +52,27 @@ struct MenuBarView: View {
             }
             Divider()
             Button("Open Harbor") { openMain() }
-            Picker("Menu bar display", selection: $display) {
+            Menu {
                 ForEach(MenuBarDisplay.allCases, id: \.rawValue) { mode in
-                    Text(mode.title).tag(mode.rawValue)
+                    Toggle(mode.title, isOn: Binding(
+                        get: { display == mode.rawValue },
+                        set: { selected in if selected { display = mode.rawValue } }
+                    ))
                 }
-            }.pickerStyle(.menu)
+            } label: {
+                HStack {
+                    Text("Menu bar display")
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 8).padding(.vertical, 6)
+                .contentShape(Rectangle())
+                .background(displayMenuHovered ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 5))
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .onHover { displayMenuHovered = $0 }
             Divider()
             Button("Quit Harbor & Stop Transfers") { NSApplication.shared.terminate(nil) }
                 .help("Stops Transmission before quitting Harbor")
