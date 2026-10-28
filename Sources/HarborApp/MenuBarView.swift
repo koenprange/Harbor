@@ -29,6 +29,26 @@ struct MenuBarView: View {
                 Spacer()
             }.font(.caption).foregroundStyle(.secondary)
             Divider()
+            if !model.downloads.connected {
+                Text("Disconnected · last known transfer status")
+                    .font(.caption).foregroundStyle(.orange)
+            }
+            if model.downloads.transfers.isEmpty {
+                Text(model.downloads.connected ? "No downloads yet" : "Transfers unavailable")
+                    .font(.callout).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(model.downloads.transfers) { transfer in
+                            transferRow(transfer)
+                            if transfer.id != model.downloads.transfers.last?.id { Divider().padding(.vertical, 10) }
+                        }
+                    }.padding(.vertical, 2)
+                }
+                .frame(height: min(CGFloat(model.downloads.transfers.count) * 112, 340))
+            }
+            Divider()
             Button("Open Harbor") { openMain() }
             Divider()
             Button("Quit Harbor & Stop Transfers") { NSApplication.shared.terminate(nil) }
@@ -36,8 +56,45 @@ struct MenuBarView: View {
         }
         .buttonStyle(.plain)
         .padding(16)
-        .frame(width: 320)
+        .frame(width: 360)
         .onAppear { model.downloads.startPolling() }
+    }
+
+    private func transferRow(_ transfer: Transfer) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Button {
+                model.downloads.filter = ""
+                model.downloads.filterText = ""
+                model.scope = "downloads"
+                model.downloads.selection = transfer.id
+                openMain()
+            } label: {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(transfer.name).font(.callout.weight(.medium)).lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ProgressView(value: transfer.progress)
+                        .tint(transfer.error != 0 ? .red : transfer.isPaused ? .gray : transfer.isComplete ? .green : .blue)
+                        .accessibilityLabel("Download progress")
+                    HStack {
+                        Text(transfer.statusText).lineLimit(1)
+                        Spacer()
+                        Text(transfer.progress, format: .percent.precision(.fractionLength(1))).monospacedDigit()
+                    }.font(.caption).foregroundStyle(transfer.error != 0 ? Color.red : Color.secondary)
+                }.contentShape(Rectangle())
+            }.help("Open \(transfer.name) in Harbor")
+            HStack(spacing: 12) {
+                TransferRate(bytes: transfer.rateDownload, direction: .download)
+                TransferRate(bytes: transfer.rateUpload, direction: .upload)
+                Spacer(minLength: 0)
+                Button { model.downloads.toggle(transfer) } label: {
+                    Image(systemName: transfer.isPaused ? "play.fill" : "pause.fill")
+                        .frame(width: 24, height: 20).contentShape(Rectangle())
+                }
+                .help(transfer.isPaused ? "Resume transfer" : "Pause transfer")
+                .accessibilityLabel(transfer.isPaused ? "Resume transfer" : "Pause transfer")
+                .disabled(model.downloads.busy || !model.downloads.connected)
+            }.font(.caption)
+        }
     }
 
     private func search() {

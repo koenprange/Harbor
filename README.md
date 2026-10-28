@@ -7,7 +7,7 @@ A native macOS menu bar app for searching torrents and managing downloads throug
 - Search APIBay, TorrentsCSV, Internet Archive, Knaben and Nyaa from one interface.
 - Manage downloads, queues, files, bandwidth limits and seeding rules.
 - Override speed limits and seed ratios for individual torrents.
-- Search from the menu bar and check transfer activity at a glance.
+- Search from the menu bar, view individual transfer progress and speeds, and pause or resume downloads.
 - Keep downloads running when the window closes; stop the engine when quitting Harbor.
 
 ## Build and setup
