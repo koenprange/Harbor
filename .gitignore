@@ -14,9 +14,3 @@ xcuserdata/
 *.key
 *.log
 __pycache__/
-
-# Private planning and design notes
-/notes/
-/local-notes/
-/docs/design/
-/docs/*_route.md
