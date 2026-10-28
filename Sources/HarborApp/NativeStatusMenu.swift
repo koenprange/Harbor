@@ -157,7 +157,8 @@ private struct MenuTransferRow: View {
                         ProgressView(value: transfer.progress).tint(transfer.progressColor)
                             .accessibilityLabel("Download progress")
                         HStack {
-                            Text(transfer.statusText).lineLimit(1)
+                            Text("\(transfer.statusText) · \(transfer.peerActivityText)").lineLimit(1)
+                                .help(transfer.peerActivityDescription)
                             Spacer()
                             Text(transfer.progress, format: .percent.precision(.fractionLength(1))).monospacedDigit()
                         }.font(.caption).foregroundStyle(transfer.error != 0 ? Color.red : .secondary)

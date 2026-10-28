@@ -65,6 +65,8 @@ struct DownloadsView: View {
                                     Spacer()
                                     Text(transfer.progress, format: .percent.precision(.fractionLength(1)))
                                 }.font(.caption).foregroundStyle(transfer.error == 0 ? Color.secondary : Color.red)
+                                Text(transfer.peerActivityText).font(.caption).foregroundStyle(.secondary)
+                                    .monospacedDigit().help(transfer.peerActivityDescription)
                             }.padding(.vertical, 9)
                         }.width(min: 190, ideal: 350)
                         TableColumn("Down") { TransferRate(bytes: $0.rateDownload, direction: .download, showArrow: false) }.width(85)

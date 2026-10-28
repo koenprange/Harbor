@@ -146,7 +146,17 @@ public struct Transfer: Decodable, Identifiable, Sendable {
     public let errorString: String
     public let queuePosition: Int
     public let peersConnected: Int
+    public let peersSendingToUs: Int
+    public let peersGettingFromUs: Int
     public let metadataPercentComplete: Double
+    public var activePeerCount: Int {
+        let active = status == 4 ? peersSendingToUs : status == 6 ? peersGettingFromUs : 0
+        return min(max(0, peersConnected), max(0, active))
+    }
+    public var peerActivityText: String { "\(activePeerCount)/\(max(0, peersConnected)) peers active" }
+    public var peerActivityDescription: String {
+        status == 6 ? "Peers receiving data from us / all connected peers" : "Peers sending data to us / all connected peers"
+    }
     public var isPaused: Bool { status == 0 }
     public var isComplete: Bool { percentDone >= 1 }
     public var statusText: String {
@@ -237,7 +247,7 @@ public actor TransmissionClient {
     public func transfers() async throws -> [Transfer] {
         let fields = ["hash_string", "name", "status", "percent_done", "rate_download", "rate_upload", "eta",
             "total_size", "downloaded_ever", "uploaded_ever", "upload_ratio", "download_dir", "error",
-            "error_string", "queue_position", "peers_connected", "metadata_percent_complete"]
+            "error_string", "queue_position", "peers_connected", "peers_sending_to_us", "peers_getting_from_us", "metadata_percent_complete"]
         let response: TransferList = try await call("torrent_get", ["fields": .array(fields.map(RPCValue.string))])
         return response.torrents.sorted { $0.queuePosition < $1.queuePosition }
     }

@@ -6,7 +6,7 @@ A native macOS menu bar app for searching torrents and managing downloads throug
 
 - Search APIBay, TorrentsCSV, Internet Archive, Knaben and Nyaa from one interface.
 - Manage downloads, queues, files, bandwidth limits and seeding rules.
-- Inspect connected peers, tracker-reported seed counts, announce results and stalled-transfer diagnostics.
+- See active/connected peers per transfer in the window and menu; inspect tracker-reported seed counts, announce results and stalled-transfer diagnostics.
 - Override speed limits and seed ratios for individual torrents.
 - Search from a native macOS menu, view individual transfer progress and speeds, and pause or resume downloads. Display options use a standard checked submenu.
 - Choose an icon-only menu bar item, activity arrows, or total upload/download speeds. Progress is blue while downloading, green while seeding, and gray when paused or completed.

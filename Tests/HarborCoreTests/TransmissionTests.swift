@@ -228,6 +228,24 @@ import Testing
         #expect(details.reportedLeechers == nil)
     }
 
+    @Test func activePeersFollowTransferDirectionWithoutDoubleCounting() throws {
+        let base: [String: Any] = ["hash_string": testHash, "name": "Example", "status": 4,
+            "percent_done": 0.5, "rate_download": 1000, "rate_upload": 20, "eta": 120,
+            "total_size": 4000, "downloaded_ever": 2000, "uploaded_ever": 200, "upload_ratio": 0.1,
+            "download_dir": "/tmp/downloads", "error": 0, "error_string": "", "queue_position": 0,
+            "peers_connected": 8, "peers_sending_to_us": 3, "peers_getting_from_us": 5, "metadata_percent_complete": 1.0]
+        let decoder = JSONDecoder(); decoder.keyDecodingStrategy = .convertFromSnakeCase
+        for (status, expected) in [(4, 3), (6, 5), (0, 0), (3, 0)] {
+            var fields = base; fields["status"] = status
+            let transfer = try decoder.decode(Transfer.self, from: JSONSerialization.data(withJSONObject: fields))
+            #expect(transfer.activePeerCount == expected)
+            #expect(transfer.peerActivityText == "\(expected)/8 peers active")
+        }
+        var fields = base; fields["peers_connected"] = 0
+        let empty = try decoder.decode(Transfer.self, from: JSONSerialization.data(withJSONObject: fields))
+        #expect(empty.peerActivityText == "0/0 peers active")
+    }
+
     @Test func negotiatesSessionAndUsesOnlyTheLocalEndpoint() async throws {
         let client = client([.init(status: 409, headers: ["X-Transmission-Session-Id": "test-session"]),
                              .init(result: ["version": "4.1.4", "download_dir": "/tmp/downloads"])])
@@ -303,12 +321,13 @@ import Testing
             "percent_done": 0.5, "rate_download": 1000, "rate_upload": 20, "eta": 120,
             "total_size": 4000, "downloaded_ever": 2000, "uploaded_ever": 200, "upload_ratio": 0.1,
             "download_dir": "/tmp/downloads", "error": 0, "error_string": "", "queue_position": 0,
-            "peers_connected": 2, "metadata_percent_complete": 1.0]
+            "peers_connected": 2, "peers_sending_to_us": 1, "peers_getting_from_us": 1, "metadata_percent_complete": 1.0]
         let client = client([.init(result: ["torrents": [fields]]),
             .init(result: ["torrents": [["files": [["name": "example.iso", "length": 4000, "bytes_completed": 2000]],
                                       "file_stats": [["wanted": false]]]]])])
         let transfer = try #require(try await client.transfers().first)
         #expect(transfer.statusText == "Downloading")
+        #expect(transfer.peerActivityText == "1/2 peers active")
         #expect(transfer.progress == 0.5)
         #expect(transfer.formattedETA == "2m")
         let file = try #require(try await client.files(hash: testHash).first)
