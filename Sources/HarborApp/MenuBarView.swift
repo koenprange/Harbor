@@ -6,6 +6,7 @@ struct MenuBarView: View {
     @Bindable var model: SearchModel
     let openMain: () -> Void
     @State private var query = ""
+    @AppStorage("menuBarDisplay") private var display = MenuBarDisplay.arrows.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -50,6 +51,11 @@ struct MenuBarView: View {
             }
             Divider()
             Button("Open Harbor") { openMain() }
+            Picker("Menu bar display", selection: $display) {
+                ForEach(MenuBarDisplay.allCases, id: \.rawValue) { mode in
+                    Text(mode.title).tag(mode.rawValue)
+                }
+            }.pickerStyle(.menu)
             Divider()
             Button("Quit Harbor & Stop Transfers") { NSApplication.shared.terminate(nil) }
                 .help("Stops Transmission before quitting Harbor")
@@ -73,7 +79,7 @@ struct MenuBarView: View {
                     Text(transfer.name).font(.callout.weight(.medium)).lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     ProgressView(value: transfer.progress)
-                        .tint(transfer.error != 0 ? .red : transfer.isPaused ? .gray : transfer.isComplete ? .green : .blue)
+                        .tint(transfer.progressColor)
                         .accessibilityLabel("Download progress")
                     HStack {
                         Text(transfer.statusText).lineLimit(1)

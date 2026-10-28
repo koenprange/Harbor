@@ -59,7 +59,7 @@ struct DownloadsView: View {
                         TableColumn("Download") { transfer in
                             VStack(alignment: .leading, spacing: 7) {
                                 Text(transfer.name).lineLimit(1).help(transfer.name)
-                                ProgressView(value: transfer.progress).tint(transfer.isComplete ? .green : .accentColor)
+                                ProgressView(value: transfer.progress).tint(transfer.progressColor)
                                 HStack {
                                     Text(transfer.statusText)
                                     Spacer()
