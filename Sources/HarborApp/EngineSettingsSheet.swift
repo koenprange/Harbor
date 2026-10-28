@@ -56,6 +56,16 @@ struct EngineSettingsSheet: View {
                 }.formStyle(.grouped).frame(height: 420).disabled(saving)
                 if let validation { Text(validation).font(.caption).foregroundStyle(.red) }
             }
+            Divider()
+            HStack(spacing: 5) {
+                Text("Powered by")
+                Link("Transmission", destination: URL(string: "https://transmissionbt.com/")!)
+                Text("·")
+                Link("License & credits", destination: URL(string: "https://github.com/transmission/transmission/blob/4.1.4/COPYING")!)
+                Spacer()
+            }.font(.caption).foregroundStyle(.secondary)
+            Text("The open-source BitTorrent engine by the Transmission contributors.")
+                .font(.caption2).foregroundStyle(.secondary)
             if let error { Text(error).font(.callout).foregroundStyle(.red).textSelection(.enabled) }
             HStack {
                 Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction).disabled(saving)
