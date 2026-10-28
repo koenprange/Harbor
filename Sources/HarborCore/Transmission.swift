@@ -242,6 +242,14 @@ public actor TransmissionClient {
         return response.torrents.sorted { $0.queuePosition < $1.queuePosition }
     }
 
+    public func diagnostics(hash: String) async throws -> TransferDiagnostics {
+        var parameters = try ids(hash)
+        parameters["fields"] = .array(["peers_connected", "peers_sending_to_us", "peers_getting_from_us", "desired_available", "left_until_done", "is_stalled", "tracker_stats"].map(RPCValue.string))
+        let response: DiagnosticsList = try await call("torrent_get", parameters)
+        guard response.torrents.count == 1, let value = response.torrents.first else { throw TransmissionError.invalidRequest }
+        return value
+    }
+
     public func seeding(hash: String) async throws -> TorrentSeeding {
         var parameters = try ids(hash)
         parameters["fields"] = .array(["seed_ratio_mode", "seed_ratio_limit", "seed_idle_mode", "seed_idle_limit"].map(RPCValue.string))
@@ -366,6 +374,7 @@ public actor TransmissionClient {
     private struct ServerError: Decodable { let message: String; let data: ErrorData? }
     private struct ErrorData: Decodable { let errorString: String? }
     private struct Empty: Decodable, Sendable {}
+    private struct DiagnosticsList: Decodable, Sendable { let torrents: [TransferDiagnostics] }
     private struct BandwidthList: Decodable, Sendable { let torrents: [TorrentBandwidth] }
     private struct SeedingList: Decodable, Sendable { let torrents: [TorrentSeeding] }
     private struct TransferList: Decodable, Sendable { let torrents: [Transfer] }

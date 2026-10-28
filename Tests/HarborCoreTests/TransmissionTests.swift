@@ -183,6 +183,51 @@ import Testing
         await #expect(throws: (any Error).self) { try await client.bandwidth(hash: testHash) }
     }
 
+    @Test func diagnosticsDistinguishTrackerEstimatesFromConnections() async throws {
+        func tracker(_ id: Int, seeds: Int, leechers: Int) -> [String: Any] {
+            ["id": id, "announce": "https://tracker.example/announce?passkey=do-not-display",
+             "announce_state": 1, "has_announced": true, "last_announce_succeeded": true,
+             "last_announce_timed_out": false, "last_announce_result": "Success",
+             "last_announce_time": 100, "next_announce_time": 200,
+             "seeder_count": seeds, "leecher_count": leechers, "is_backup": false,
+             "has_scraped": false, "last_scrape_succeeded": false,
+             "last_scrape_result": "", "last_scrape_time": 0]
+        }
+        var timeout = tracker(2, seeds: -1, leechers: -1)
+        timeout["last_announce_succeeded"] = false; timeout["last_announce_timed_out"] = true
+        var pending = tracker(3, seeds: 4, leechers: 9)
+        pending["has_announced"] = false; pending["is_backup"] = true
+        let fields: [String: Any] = ["peers_connected": 0, "peers_sending_to_us": 0,
+            "peers_getting_from_us": 0, "desired_available": 0, "left_until_done": 1000,
+            "is_stalled": true, "tracker_stats": [tracker(1, seeds: 7, leechers: 3), timeout, pending]]
+        let client = client([.init(result: ["torrents": [fields]]), .init(result: ["torrents": []])])
+        let result = try await client.diagnostics(hash: testHash)
+        #expect(result.peersConnected == 0)
+        #expect(result.reportedSeeders == 7)
+        #expect(result.reportedLeechers == 9)
+        #expect(result.trackerStats[0].displayName == "tracker.example")
+        #expect(result.trackerStats[0].announceStatus == "Announce succeeded")
+        #expect(result.trackerStats[1].knownSeeders == nil)
+        #expect(result.trackerStats[1].announceStatus == "Timed out")
+        #expect(result.trackerStats[2].announceStatus == "Backup · not contacted yet")
+        let body = try RPCMock.body(try #require(RPCMock.state.requests.first))
+        #expect(body["method"] as? String == "torrent_get")
+        let params = try #require(body["params"] as? [String: Any])
+        #expect(params["ids"] as? [String] == [testHash])
+        #expect((params["fields"] as? [String])?.contains("tracker_stats") == true)
+        await #expect(throws: (any Error).self) { try await client.diagnostics(hash: "") }
+        #expect(RPCMock.state.requests.count == 1)
+        await #expect(throws: (any Error).self) { try await client.diagnostics(hash: testHash) }
+    }
+
+    @Test func unknownTrackerCountsAreNotZero() throws {
+        let json = #"{"peers_connected":0,"peers_sending_to_us":0,"peers_getting_from_us":0,"desired_available":0,"left_until_done":10,"is_stalled":false,"tracker_stats":[]}"#
+        let decoder = JSONDecoder(); decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let details = try decoder.decode(TransferDiagnostics.self, from: Data(json.utf8))
+        #expect(details.reportedSeeders == nil)
+        #expect(details.reportedLeechers == nil)
+    }
+
     @Test func negotiatesSessionAndUsesOnlyTheLocalEndpoint() async throws {
         let client = client([.init(status: 409, headers: ["X-Transmission-Session-Id": "test-session"]),
                              .init(result: ["version": "4.1.4", "download_dir": "/tmp/downloads"])])

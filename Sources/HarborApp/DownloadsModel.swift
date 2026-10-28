@@ -172,6 +172,10 @@ import HarborCore
         await refresh()
         return actual
     }
+    func diagnostics(hash: String) async throws -> TransferDiagnostics {
+        guard let client else { throw TransmissionError.unavailable }
+        return try await client.diagnostics(hash: hash)
+    }
     func reveal(_ transfer: Transfer) {
         let directory = URL(fileURLWithPath: transfer.downloadDir, isDirectory: true)
         let target = directory.appendingPathComponent(transfer.name)

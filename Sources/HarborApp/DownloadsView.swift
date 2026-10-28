@@ -119,7 +119,7 @@ struct DownloadsView: View {
             VStack(alignment: .leading, spacing: 17) {
                 Text(transfer.name).font(.headline).textSelection(.enabled)
                 LabeledContent("Size", value: transfer.formattedSize)
-                LabeledContent("Peers", value: "\(transfer.peersConnected)")
+                TransferDiagnosticsView(transfer: transfer, model: model).id(transfer.id)
                 LabeledContent("Ratio", value: transfer.uploadRatio >= 0 ? String(format: "%.2f", transfer.uploadRatio) : "—")
                 Button("Speed Limits…", systemImage: "speedometer") { bandwidthTransfer = transfer }
                     .disabled(model.busy || !model.connected)
