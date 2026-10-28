@@ -38,9 +38,9 @@ extension Transfer {
     }
 }
 
-struct HarborStatusLabel: View {
-    @Bindable var model: DownloadsModel
-    @AppStorage("menuBarDisplay") private var display = MenuBarDisplay.arrows.rawValue
+@MainActor struct HarborStatusIcon {
+    let model: DownloadsModel
+    private var display: String { UserDefaults.standard.string(forKey: "menuBarDisplay") ?? MenuBarDisplay.arrows.rawValue }
     private var status: (symbol: String, title: String) {
         if !model.connected { return ("exclamationmark.circle.fill", "Disconnected") }
         if model.downloadSpeed > 0 && model.uploadSpeed > 0 { return ("arrow.up.arrow.down", "Downloading and uploading") }
@@ -63,7 +63,7 @@ struct HarborStatusLabel: View {
     private var speedText: String {
         model.connected ? "↓ \(compactSpeed(model.downloadSpeed))  ↑ \(compactSpeed(model.uploadSpeed))" : "↓ —  ↑ —"
     }
-    private var icon: NSImage {
+    var image: NSImage {
         // A single native image keeps the boat, indicator and optional text together.
         let mode = MenuBarDisplay(rawValue: display) ?? .arrows
         let text = NSAttributedString(string: speedText, attributes: [
@@ -86,9 +86,5 @@ struct HarborStatusLabel: View {
         image.isTemplate = true
         return image
     }
-    var body: some View {
-        Image(nsImage: icon)
-            .accessibilityLabel("Harbor · \(status.title) · \(speedText)")
-            .help("Harbor · \(status.title) · \(speedText)")
-    }
+    var toolTip: String { "Harbor · \(status.title) · \(speedText)" }
 }

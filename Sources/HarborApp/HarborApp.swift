@@ -4,14 +4,17 @@ import AppKit
 @main struct HarborApp: App {
     @NSApplicationDelegateAdaptor(HarborLifecycle.self) private var lifecycle
     @Environment(\.openWindow) private var openWindow
-    @State private var model = SearchModel()
+    @State private var model = SearchModel.shared
 
     var body: some Scene {
         Window("Harbor", id: "main") {
             ContentView(model: model)
                 .tint(Color(red: 0.08, green: 0.52, blue: 0.54))
                 .frame(minWidth: 900, minHeight: 570)
-                .onAppear { NSApplication.shared.activate(ignoringOtherApps: true) }
+                .onAppear {
+                    NativeStatusMenu.shared.openWindow = { openWindow(id: "main") }
+                    NSApplication.shared.activate(ignoringOtherApps: true)
+                }
         }
         .defaultSize(width: 1200, height: 760)
         .windowResizability(.contentMinSize)
@@ -41,14 +44,5 @@ import AppKit
                 Button("Connection Settings…") { model.downloads.showConnection = true }
             }
         }
-        MenuBarExtra {
-            MenuBarView(model: model) {
-                openWindow(id: "main")
-                NSApplication.shared.activate(ignoringOtherApps: true)
-            }
-        } label: {
-            HarborStatusLabel(model: model.downloads)
-        }
-        .menuBarExtraStyle(.window)
     }
 }

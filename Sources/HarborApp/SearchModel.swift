@@ -24,6 +24,7 @@ enum SourceState: Equatable {
 }
 
 @MainActor @Observable final class SearchModel {
+    static let shared = SearchModel()
     var query = ""
     var searchedQuery = ""
     var scope: String? = "all"

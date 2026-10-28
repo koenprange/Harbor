@@ -4,6 +4,8 @@ import AppKit
     private var stopping = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NativeStatusMenu.shared.install()
+        SearchModel.shared.downloads.startPolling()
         Task { @MainActor in
             guard !stopping else { return }
             do { try await DaemonController.shared.start() }
