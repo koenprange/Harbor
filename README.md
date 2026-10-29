@@ -67,6 +67,9 @@ swift run HarborCheck ubuntu
 - `Sources/HarborApp`: SwiftUI interface and engine lifecycle.
 - `Sources/HarborCore`: search adapters, result handling and Transmission RPC client.
 - `Tests/HarborCoreTests`: parser and RPC tests.
+- `Tests/HarborAppTests`: download-state race tests and optional live-engine integration tests.
+
+To include live-engine tests, set `HARBOR_TEST_DAEMON` to the absolute path of a Transmission 4.1+ daemon when running `swift test`. These tests use disposable profiles, loopback-only ports and synthetic trackerless torrents. They do not use the normal Harbor profile or Keychain.
 
 The build uses SwiftPM's native backend to work around local signing issues. That backend is deprecated and may need replacing in a future Swift release.
 

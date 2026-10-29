@@ -85,6 +85,8 @@ struct TransferDiagnosticsView: View {
             }
         }
         .task(id: transfer.id) {
+            details = nil
+            error = nil
             while !Task.isCancelled {
                 do {
                     let value = try await model.diagnostics(hash: transfer.id)

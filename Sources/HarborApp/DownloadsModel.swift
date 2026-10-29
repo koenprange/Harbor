@@ -4,7 +4,14 @@ import HarborCore
 
 @MainActor @Observable final class DownloadsModel {
     var transfers: [Transfer] = []
-    var selection: String?
+    var selection: String? {
+        didSet {
+            guard oldValue != selection else { return }
+            filesRequest = UUID()
+            files = []
+            loadingFiles = false
+        }
+    }
     var files: [TransferFile] = []
     var filter = ""
     var filterText = ""
@@ -29,6 +36,13 @@ import HarborCore
         do {
             if let credentials = try ConnectionStore.load() { use(credentials) }
         } catch { status = error.localizedDescription }
+    }
+    /// Allows isolated integration tests without reading or writing the user's Keychain.
+    init(client: TransmissionClient) {
+        self.client = client
+        configured = true
+        setupRequired = false
+        status = "Connecting…"
     }
     private func use(_ credentials: LocalCredentials) {
         username = credentials.username
@@ -79,7 +93,7 @@ import HarborCore
             self.transfers = transfers
             connected = true
             status = "Connected locally"
-            if let selection, !transfers.contains(where: { $0.id == selection }) { self.selection = nil; files = [] }
+            if let selection, !transfers.contains(where: { $0.id == selection }) { self.selection = nil }
         } catch is CancellationError { }
         catch { connected = false; status = error.localizedDescription }
     }

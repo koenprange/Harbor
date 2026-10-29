@@ -12,6 +12,7 @@ let package = Package(
         .target(name: "HarborCore"),
         .executableTarget(name: "HarborApp", dependencies: ["HarborCore"]),
         .executableTarget(name: "HarborCheck", dependencies: ["HarborCore"]),
-        .testTarget(name: "HarborCoreTests", dependencies: ["HarborCore"])
+        .testTarget(name: "HarborCoreTests", dependencies: ["HarborCore"]),
+        .testTarget(name: "HarborAppTests", dependencies: ["HarborApp", "HarborCore"])
     ]
 )

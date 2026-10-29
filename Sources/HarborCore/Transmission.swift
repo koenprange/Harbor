@@ -27,7 +27,7 @@ public enum TransmissionError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .authentication: "Transmission rejected the login. Check the connection settings."
-        case .unavailable: "Cannot connect to Transmission on this Mac. Start the download engine from Downloads and check the local connection settings."
+        case .unavailable: "Cannot connect to Transmission on this Mac. Quit and reopen Harbor to restart the download engine, then check the local connection settings."
         case .invalidResponse: "Transmission returned an unexpected response. Harbor requires Transmission 4.1 or newer."
         case .invalidRequest: "The selected torrent or file reference is invalid."
         case .server(let message): "Transmission: \(String(message.prefix(400)))"
