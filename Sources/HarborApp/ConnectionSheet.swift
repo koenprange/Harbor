@@ -18,12 +18,12 @@ struct ConnectionSheet: View {
             Text("Harbor controls Transmission on this Mac. Transfers keep running when the window closes and stop when you quit Harbor.")
                 .foregroundStyle(.secondary)
             Form {
-                LabeledContent("Address", value: "127.0.0.1:9091")
+                LabeledContent("Address", value: "127.0.0.1:\(HarborEnvironment.rpcPort)")
                 TextField("Username", text: $username).textContentType(.username)
                 SecureField("Password", text: $password).textContentType(.password)
             }
             .textFieldStyle(.roundedBorder)
-            Text("Stored in macOS Keychain. Enable authentication in Transmission and allow only 127.0.0.1. No router management port is needed.")
+            Text("Stored in macOS Keychain. Harbor creates the local login automatically for new profiles. This panel can restore credentials for an existing profile.")
                 .font(.caption).foregroundStyle(.secondary)
             if let error { Text(error).foregroundStyle(.red).font(.callout) }
             HStack {

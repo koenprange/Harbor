@@ -62,6 +62,7 @@ import HarborCore
         }
         menu.addItem(.separator())
         addAction("Open Harbor", action: #selector(showMain))
+        if model.downloads.setupRequired { addAction("Set Up Downloads…", action: #selector(showSetup)) }
         let display = NSMenuItem(title: "Menu bar display", action: nil, keyEquivalent: "")
         let submenu = NSMenu(title: "Menu bar display")
         submenu.autoenablesItems = false
@@ -108,6 +109,7 @@ import HarborCore
         model.downloads.selection = hash
         revealMain()
     }
+    @objc private func showSetup() { model.downloads.showSetup = true; revealMain() }
     @objc private func showMain() { revealMain() }
     @objc private func quit() {
         menu.cancelTracking()

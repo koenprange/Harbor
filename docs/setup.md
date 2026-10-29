@@ -1,28 +1,31 @@
-# Manual setup
+# Setup
 
-Harbor currently supports migrating an existing local Transmission session. Fresh-install setup is not automated yet.
+## New installation
 
-1. Install `transmission-cli` with Homebrew and build Harbor as described in the README.
-2. In the Transmission Mac app, enable authenticated RPC on port 9091. Restrict access to localhost and choose your own username and password.
-3. With Transmission running, capture the session:
+1. Copy Harbor from the disk image to Applications and open it.
+2. Choose a download folder, then select **Start Harbor**.
 
-   ```sh
-   python3 scripts/migrate-transmission.py snapshot
-   ```
+Harbor creates its own download profile, generates a local login and stores the credentials in macOS Keychain. There is no Transmission account to create or password to type. Choosing **Not Now** leaves the engine off; use **Set Up Downloads…** in the menu to return later.
 
-   The script prompts for the local RPC credentials. It saves a pending configuration with a salted password verifier.
+Existing Harbor settings and transfers are kept. Other Transmission configurations are not imported or changed automatically.
 
-4. Open Harbor. If it reports that the Transmission app is running, dismiss that message. In **Downloads → Connection Settings…**, save the same credentials. This tests the running local session and stores the login in Keychain.
-5. Quit Harbor, then quit the Transmission Mac app completely.
-6. Complete the migration while both apps are stopped:
+## Optional migration from Transmission
 
-   ```sh
-   python3 scripts/migrate-transmission.py finish
-   ```
+The developer migration helper can copy a local Transmission Mac session. It is optional and requires Python; normal fresh setup does not.
 
-7. Open Harbor again. It starts the daemon using the migrated settings.
+With the Mac app running and authenticated localhost RPC configured, run:
 
-The migration copies torrent and resume state and backs up the original configuration. Downloaded files are not moved. It refuses to overwrite an existing daemon configuration.
+```sh
+python3 scripts/migrate-transmission.py snapshot
+```
+
+Open Harbor, choose **Not Now** in the first-run sheet, and save those credentials through **Connection Settings…**, then fully quit both apps and run:
+
+```sh
+python3 scripts/migrate-transmission.py finish
+```
+
+The helper refuses an existing Harbor engine configuration and backs up the GUI profile before copying torrent/resume state. Downloaded payloads are not moved. Restart Harbor to use the migrated profile. If Harbor is already configured, keep using it rather than rerunning migration over that profile.
 
 ## Troubleshooting
 
@@ -33,4 +36,4 @@ The migration copies torrent and resume state and backs up the original configur
 
 ## Returning to the Mac app
 
-Quit Harbor and confirm its daemon has stopped before opening Transmission. The original app retains its previous session. Transfers added after migration need to be moved back deliberately; they are not synchronized between the two configurations.
+Quit Harbor and confirm its daemon has stopped before opening Transmission. The original app retains its previous session. Transfers added after migration are not synchronized between the two configurations.

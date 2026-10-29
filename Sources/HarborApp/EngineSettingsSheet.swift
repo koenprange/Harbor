@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import HarborCore
 
 struct EngineSettingsSheet: View {
@@ -62,6 +63,11 @@ struct EngineSettingsSheet: View {
                 Link("Transmission", destination: URL(string: "https://transmissionbt.com/")!)
                 Text("·")
                 Link("License & credits", destination: URL(string: "https://github.com/transmission/transmission/blob/4.1.4/COPYING")!)
+                if let notices = Bundle.main.resourceURL?.appendingPathComponent("ThirdParty"),
+                   FileManager.default.fileExists(atPath: notices.path) {
+                    Text("·")
+                    Button("Bundled notices") { NSWorkspace.shared.open(notices) }.buttonStyle(.link)
+                }
                 Spacer()
             }.font(.caption).foregroundStyle(.secondary)
             Text("The open-source BitTorrent engine by the Transmission contributors.")

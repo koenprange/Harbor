@@ -6,13 +6,15 @@ struct LocalCredentials: Codable {
     let password: String
 }
 
-enum ConnectionStore {
+@MainActor enum ConnectionStore {
+    private static var cached: LocalCredentials?
     private static var query: [String: Any] {
         [kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: "nl.koenprange.harbor.transmission",
+         kSecAttrService as String: "\(Bundle.main.bundleIdentifier ?? "nl.koenprange.harbor").transmission",
          kSecAttrAccount as String: "local-rpc"]
     }
     static func load() throws -> LocalCredentials? {
+        if let cached { return cached }
         var request = query
         request[kSecReturnData as String] = true
         request[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -20,7 +22,9 @@ enum ConnectionStore {
         let status = SecItemCopyMatching(request as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }
         guard status == errSecSuccess, let data = result as? Data else { throw StoreError(status: status) }
-        return try JSONDecoder().decode(LocalCredentials.self, from: data)
+        let credentials = try JSONDecoder().decode(LocalCredentials.self, from: data)
+        cached = credentials
+        return credentials
     }
     static func save(_ credentials: LocalCredentials) throws {
         let data = try JSONEncoder().encode(credentials)
@@ -32,6 +36,7 @@ enum ConnectionStore {
             status = SecItemAdd(item as CFDictionary, nil)
         }
         guard status == errSecSuccess else { throw StoreError(status: status) }
+        cached = credentials
     }
     private struct StoreError: LocalizedError {
         let status: OSStatus

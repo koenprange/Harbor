@@ -14,6 +14,8 @@ import HarborCore
     var username = "harbor"
     var defaultDirectory = ""
     var error: String?
+    var setupRequired = HarborEnvironment.needsSetup
+    var showSetup = false
     var showConnection = false
     var showSettings = false
     var busy = false
@@ -30,7 +32,7 @@ import HarborCore
     }
     private func use(_ credentials: LocalCredentials) {
         username = credentials.username
-        client = TransmissionClient(username: credentials.username, password: credentials.password)
+        client = TransmissionClient(username: credentials.username, password: credentials.password, port: HarborEnvironment.rpcPort)
         configured = true
         connected = false
         defaultDirectory = ""
@@ -38,13 +40,25 @@ import HarborCore
     }
     func saveConnection(username: String, password: String) async throws {
         guard !username.isEmpty, !username.contains(":"), !password.isEmpty else { throw TransmissionError.invalidRequest }
-        let candidate = TransmissionClient(username: username, password: password)
+        let candidate = TransmissionClient(username: username, password: password, port: HarborEnvironment.rpcPort)
         let info = try await candidate.sessionInfo()
         let credentials = LocalCredentials(username: username, password: password)
         try ConnectionStore.save(credentials)
         use(credentials)
         defaultDirectory = info.downloadDir
         await refresh()
+    }
+    func completeSetup(directory: String) async throws {
+        let credentials = try DaemonController.shared.prepareFreshSession(directory: directory)
+        use(credentials)
+        setupRequired = false
+        try await DaemonController.shared.start()
+        await refresh()
+        showSetup = false
+    }
+    func presentSettings() {
+        if setupRequired { showSetup = true }
+        else { showSettings = true }
     }
     func startPolling() {
         guard pollTask == nil else { return }

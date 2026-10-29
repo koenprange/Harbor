@@ -1,0 +1,32 @@
+{
+  "transmission-cli": {
+    "version": "4.1.4",
+    "url": "https://github.com/transmission/transmission/releases/download/4.1.4/transmission-4.1.4.tar.xz",
+    "sha256": "86e7aa020cdf64826447034bc85f4d3b7c848d8c0891d9dc9b9fddfb2c805d22",
+    "license": "GPL-2.0-only OR GPL-3.0-only"
+  },
+  "libevent": {
+    "version": "2.1.13",
+    "url": "https://github.com/libevent/libevent/releases/download/release-2.1.13-stable/libevent-2.1.13-stable.tar.gz",
+    "sha256": "f7e9383b8c0baa81b687e5b5eecc01beefaf1b19b64151d95ed61647fe7a315c",
+    "license": "BSD-3-Clause"
+  },
+  "libpsl": {
+    "version": "0.23.3",
+    "url": "https://github.com/rockdaboot/libpsl/releases/download/0.23.3/libpsl-0.23.3.tar.gz",
+    "sha256": "93941f85a1e7bd593fa94f299233cb5dfc91cd144fd9a78a6ceb75001c5b03be",
+    "license": "MIT"
+  },
+  "miniupnpc": {
+    "version": "2.3.3",
+    "url": "https://github.com/miniupnp/miniupnp/releases/download/miniupnpc_2_3_3/miniupnpc-2.3.3.tar.gz",
+    "sha256": "d52a0afa614ad6c088cc9ddff1ae7d29c8c595ac5fdd321170a05f41e634bd1a",
+    "license": "BSD-3-Clause"
+  },
+  "libiconv": {
+    "version": "1.19",
+    "url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.19.tar.gz",
+    "sha256": "88dd96a8c0464eca144fc791ae60cd31cd8ee78321e67397e25fc095c4a19aa6",
+    "license": "LGPL-2.0-or-later (library); GPL-3.0-or-later (tools, not bundled)"
+  }
+}

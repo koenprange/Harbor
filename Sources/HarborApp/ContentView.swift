@@ -39,6 +39,9 @@ struct ContentView: View {
                 } }
             }
         }
+        .sheet(isPresented: Binding(get: { model.downloads.showSetup }, set: { model.downloads.showSetup = $0 })) {
+            FirstRunSheet(model: model.downloads)
+        }
         .sheet(isPresented: Binding(get: { model.downloads.showConnection }, set: { model.downloads.showConnection = $0 })) {
             ConnectionSheet(model: model.downloads)
         }
@@ -144,11 +147,14 @@ struct ContentView: View {
             }
             .listStyle(.sidebar)
 
-            Button { model.downloads.showConnection = true } label: { HStack(spacing: 8) {
+            Button {
+                if model.downloads.setupRequired { model.downloads.showSetup = true }
+                else { model.downloads.showConnection = true }
+            } label: { HStack(spacing: 8) {
                 Circle().fill(model.downloads.connected ? Color.green : Color.secondary).frame(width: 7, height: 7)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Transmission · local").font(.caption.weight(.medium))
-                    Text(model.downloads.connected ? "Connected on this Mac" : model.downloads.configured ? "Connection unavailable" : "Set up connection")
+                    Text(model.downloads.setupRequired ? "Set up downloads" : model.downloads.connected ? "Connected on this Mac" : model.downloads.configured ? "Connection unavailable" : "Set up connection")
                         .font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)

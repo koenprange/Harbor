@@ -6,6 +6,7 @@ import AppKit
     func applicationDidFinishLaunching(_ notification: Notification) {
         NativeStatusMenu.shared.install()
         SearchModel.shared.downloads.startPolling()
+        if HarborEnvironment.needsSetup { SearchModel.shared.downloads.showSetup = true; return }
         Task { @MainActor in
             guard !stopping else { return }
             do { try await DaemonController.shared.start() }

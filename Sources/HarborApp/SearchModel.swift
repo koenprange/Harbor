@@ -131,6 +131,7 @@ enum SourceState: Equatable {
 
     func openInTransmission(_ result: TorrentResult) {
         guard !isOpening else { return }
+        if downloads.setupRequired { downloads.showSetup = true; return }
         guard downloads.configured else { downloads.showConnection = true; return }
         pendingAddition = result
     }

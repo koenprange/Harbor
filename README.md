@@ -12,18 +12,32 @@ A native macOS menu bar app for searching torrents and managing downloads throug
 - Choose an icon-only menu bar item, activity arrows, or total upload/download speeds. Progress is blue while downloading, green while seeding, and gray when paused or completed.
 - Keep downloads running when the window closes; stop the engine when quitting Harbor.
 
-## Build and setup
+## Installation
 
-Requires macOS 14 or later, Swift 6, and Transmission 4.1 or later. The build script currently targets Apple Silicon.
+Standalone builds include the Transmission engine and its libraries. They do not require Homebrew, Xcode or a separate Transmission app on the user's Mac.
+
+Open Harbor and choose a download folder. Harbor creates its local configuration and connection credentials automatically. Existing Harbor profiles are reused without resetting their settings or transfers.
+
+The current packaging targets Apple Silicon and macOS 14 or later. Builds are ad-hoc signed, not notarized; a Developer ID-signed public release is not available yet.
+
+See [setup and migration](docs/setup.md).
+
+## Building from source
+
+Developers need Swift 6, Python 3 and the pinned Transmission version. Standalone packaging also needs standard C build tools and pkgconf:
 
 ```sh
-brew install transmission-cli
-bash scripts/build.sh
+brew install transmission-cli pkgconf
+bash scripts/package.sh
 ```
 
-The app is built at `dist/Harbor.app`. It is ad-hoc signed, not notarized.
+This creates a disk image, a corresponding third-party source archive and checksums in `dist/`. Source downloads are pinned and checked against SHA-256 hashes. Publish the source archive alongside any binary release.
 
-**First-run setup is still manual.** Harbor currently needs a configured local Transmission session and saved connection credentials before it can manage its daemon. See [setup](docs/setup.md). A fresh-install setup assistant is not implemented yet.
+For a quick development build using an installed engine:
+
+```sh
+bash scripts/build.sh
+```
 
 Do not start Transmission with `brew services`: Harbor manages its own engine. Avoid running another Transmission instance alongside it.
 
@@ -60,4 +74,4 @@ The build uses SwiftPM's native backend to work around local signing issues. Tha
 
 [MIT](LICENSE). Copyright © 2026 Koen Prange.
 
-Harbor is powered by [Transmission](https://transmissionbt.com/), the open-source BitTorrent engine developed by the Transmission contributors. Transmission is installed separately and retains its [own license](https://github.com/transmission/transmission/blob/4.1.4/COPYING).
+Harbor is powered by [Transmission](https://transmissionbt.com/), the open-source BitTorrent engine developed by the Transmission contributors. Transmission is bundled in standalone builds and retains its [own license](https://github.com/transmission/transmission/blob/4.1.4/COPYING). Third-party notices are included in the app; corresponding sources and build recipes accompany binary packages.

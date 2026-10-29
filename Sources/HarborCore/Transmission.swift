@@ -204,13 +204,16 @@ public struct TransferAddition: Sendable {
 /// Local-only client. Credentials are never sent to a configurable remote host.
 public actor TransmissionClient {
     public static let endpoint = URL(string: "http://127.0.0.1:9091/transmission/rpc")!
+    private let rpcEndpoint: URL
     private let authorization: String
     private let session: URLSession
     private let redirectGuard: NoRedirects
     private var sessionID: String?
     private var nextID = 0
 
-    public init(username: String, password: String, session: URLSession? = nil) {
+    public init(username: String, password: String, session: URLSession? = nil, port: Int = 9091) {
+        precondition((1...65535).contains(port))
+        rpcEndpoint = URL(string: "http://127.0.0.1:\(port)/transmission/rpc")!
         self.authorization = "Basic " + Data("\(username):\(password)".utf8).base64EncodedString()
         let guardDelegate = NoRedirects()
         self.redirectGuard = guardDelegate
@@ -348,7 +351,7 @@ public actor TransmissionClient {
         let id = nextID
         let body = try JSONEncoder().encode(Request(method: method, params: parameters, id: id))
         for attempt in 0..<2 {
-            var request = URLRequest(url: Self.endpoint)
+            var request = URLRequest(url: rpcEndpoint)
             request.httpMethod = "POST"
             request.httpBody = body
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

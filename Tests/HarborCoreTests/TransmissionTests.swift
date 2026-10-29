@@ -246,6 +246,16 @@ import Testing
         #expect(empty.peerActivityText == "0/0 peers active")
     }
 
+    @Test func isolatedInstallClientStillUsesOnlyLoopback() async throws {
+        RPCMock.state.reset([.init(result: ["version": "4.1.4", "download_dir": "/tmp/downloads"])])
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [RPCMock.self]
+        let isolated = TransmissionClient(username: "test-user", password: "test-password", session: URLSession(configuration: configuration), port: 9097)
+        _ = try await isolated.sessionInfo()
+        #expect(RPCMock.state.requests.first?.url?.host == "127.0.0.1")
+        #expect(RPCMock.state.requests.first?.url?.port == 9097)
+    }
+
     @Test func negotiatesSessionAndUsesOnlyTheLocalEndpoint() async throws {
         let client = client([.init(status: 409, headers: ["X-Transmission-Session-Id": "test-session"]),
                              .init(result: ["version": "4.1.4", "download_dir": "/tmp/downloads"])])

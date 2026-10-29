@@ -23,7 +23,7 @@ import AppKit
             CommandGroup(replacing: .appSettings) {
                 Button("Download Settings…") {
                     openWindow(id: "main")
-                    model.downloads.showSettings = true
+                    model.downloads.presentSettings()
                     NSApplication.shared.activate(ignoringOtherApps: true)
                 }.keyboardShortcut(",")
             }
@@ -40,7 +40,7 @@ import AppKit
             }
             CommandMenu("Downloads") {
                 Button("Show Downloads") { model.scope = "downloads" }.keyboardShortcut("d", modifiers: [.command, .shift])
-                Button("Download Settings…") { model.downloads.showSettings = true }
+                Button("Download Settings…") { model.downloads.presentSettings() }
                 Button("Connection Settings…") { model.downloads.showConnection = true }
             }
         }

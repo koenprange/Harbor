@@ -19,7 +19,7 @@ struct DownloadsView: View {
                 TextField("Filter downloads", text: $model.filterText).textFieldStyle(.roundedBorder).frame(maxWidth: 200)
                 Button { Task { await model.refresh() } } label: { Image(systemName: "arrow.clockwise") }.help("Refresh")
                 Menu {
-                    Button("Download Settings…") { model.showSettings = true }
+                    Button("Download Settings…") { model.presentSettings() }
                     Button("Connection Settings…") { model.showConnection = true }
                     Button("Start Download Engine") {
                         Task {
