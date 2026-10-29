@@ -72,6 +72,6 @@ The build uses SwiftPM's native backend to work around local signing issues. Tha
 
 ## License
 
-[MIT](LICENSE). Copyright © 2026 Koen Prange.
+[GNU GPL version 3](LICENSE) (`GPL-3.0-only`). Copyright © 2026 Koen Prange.
 
 Harbor is powered by [Transmission](https://transmissionbt.com/), the open-source BitTorrent engine developed by the Transmission contributors. Transmission is bundled in standalone builds and retains its [own license](https://github.com/transmission/transmission/blob/4.1.4/COPYING). Third-party notices are included in the app; corresponding sources and build recipes accompany binary packages.

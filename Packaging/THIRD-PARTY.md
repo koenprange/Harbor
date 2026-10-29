@@ -1,6 +1,6 @@
 # Third-party software
 
-Harbor uses Transmission as a separate executable controlled through its local RPC API. Harbor itself is licensed under MIT; the components below retain their own licenses and copyrights.
+Harbor uses Transmission as a separate executable controlled through its local RPC API. Harbor itself is licensed under GNU GPL version 3 (`GPL-3.0-only`); the components below retain their own licenses and copyrights.
 
 | Component | License |
 | --- | --- |

@@ -11,6 +11,7 @@ APP="${HARBOR_APP_PATH:-$PWD/dist/Harbor.app}"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/Harbor "$APP/Contents/MacOS/Harbor"
 cp Packaging/Info.plist "$APP/Contents/Info.plist"
+cp LICENSE "$APP/Contents/Resources/LICENSE.txt"
 swift scripts/icon.swift "$PWD/dist/Harbor.iconset" "$APP/Contents/Resources/Harbor.icns"
 if [[ "$BUNDLE_ENGINE" == 1 ]]; then python3 scripts/bundle-engine.py "$APP"; fi
 xattr -cr "$APP"
