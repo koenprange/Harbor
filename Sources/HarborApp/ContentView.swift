@@ -230,7 +230,7 @@ struct ContentView: View {
                 Image(systemName: "sailboat").font(.system(size: 43, weight: .light)).foregroundStyle(.tint)
             }
             VStack(spacing: 9) {
-                Text("A calmer way to search.").font(.system(size: 27, weight: .semibold, design: .rounded))
+                Text("A calmer sea to sail.").font(.system(size: 27, weight: .semibold, design: .rounded))
                 Text("Search multiple indexes. Manage your downloads in one place.")
                     .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
