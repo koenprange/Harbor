@@ -6,12 +6,14 @@ import HarborCore
     static let shared = NativeStatusMenu(model: .shared)
     var openWindow: (() -> Void)?
     private let model: SearchModel
+    private let displayName: String
     private var statusItem: NSStatusItem?
     private var timer: Timer?
     let menu = NSMenu()
 
-    init(model: SearchModel) {
+    init(model: SearchModel, displayName: String = "Harbor") {
         self.model = model
+        self.displayName = displayName
         super.init()
     }
 
@@ -32,11 +34,21 @@ import HarborCore
         RunLoop.main.add(timer, forMode: .eventTracking)
     }
 
+    func uninstall() {
+        timer?.invalidate()
+        timer = nil
+        if let statusItem { NSStatusBar.system.removeStatusItem(statusItem) }
+        statusItem = nil
+        menu.removeAllItems()
+        openWindow = nil
+    }
+
     private func updateIcon() {
         let icon = HarborStatusIcon(model: model.downloads)
         statusItem?.button?.image = icon.image
-        statusItem?.button?.toolTip = icon.toolTip
-        statusItem?.button?.setAccessibilityLabel(icon.toolTip)
+        let label = displayName == "Harbor" ? icon.toolTip : "\(displayName) · \(icon.toolTip)"
+        statusItem?.button?.toolTip = label
+        statusItem?.button?.setAccessibilityLabel(label)
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -66,7 +78,7 @@ import HarborCore
             }
         }
         menu.addItem(.separator())
-        addAction("Open Harbor", action: #selector(showMain))
+        addAction("Open \(displayName)", action: #selector(showMain))
         if model.downloads.setupRequired { addAction("Set Up Downloads…", action: #selector(showSetup)) }
         let display = NSMenuItem(title: "Menu bar display", action: nil, keyEquivalent: "")
         let submenu = NSMenu(title: "Menu bar display")
@@ -82,7 +94,7 @@ import HarborCore
         display.submenu = submenu
         menu.addItem(display)
         menu.addItem(.separator())
-        addAction("Quit Harbor & Stop Transfers", action: #selector(quit))
+        addAction("Quit \(displayName) & Stop Transfers", action: #selector(quit))
     }
 
     private func addAction(_ title: String, action: Selector) {

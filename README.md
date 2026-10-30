@@ -73,6 +73,8 @@ To include live-engine tests, set `HARBOR_TEST_DAEMON` to the absolute path of a
 
 For a repeatable native-menu memory workload, run `HARBOR_MEMORY_EXERCISE=1 swift test --build-system native --disable-sandbox --filter MemoryExerciseTests`. It uses synthetic transfers without a daemon or Keychain access; `HARBOR_MEMORY_CYCLES` controls the number of rebuilds (up to 1,000).
 
+For an explicitly started, isolated 48-hour run with bounded torrents and process metrics, see [Soak testing](docs/SOAK_TESTING.md). Preparing it does not start downloads.
+
 The build uses SwiftPM's native backend to work around local signing issues. That backend is deprecated and may need replacing in a future Swift release.
 
 ## License
