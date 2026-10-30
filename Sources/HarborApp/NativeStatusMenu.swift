@@ -3,12 +3,17 @@ import SwiftUI
 import HarborCore
 
 @MainActor final class NativeStatusMenu: NSObject, NSMenuDelegate {
-    static let shared = NativeStatusMenu()
+    static let shared = NativeStatusMenu(model: .shared)
     var openWindow: (() -> Void)?
-    private let model = SearchModel.shared
+    private let model: SearchModel
     private var statusItem: NSStatusItem?
     private var timer: Timer?
-    private let menu = NSMenu()
+    let menu = NSMenu()
+
+    init(model: SearchModel) {
+        self.model = model
+        super.init()
+    }
 
     func install() {
         guard statusItem == nil else { return }

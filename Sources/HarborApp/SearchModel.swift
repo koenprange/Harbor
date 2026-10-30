@@ -38,7 +38,8 @@ enum SourceState: Equatable {
     var error: String?
     var notice: String?
     var pendingAddition: TorrentResult?
-    let downloads = DownloadsModel()
+    let downloads: DownloadsModel
+    private let defaults: UserDefaults
     var recentSearches: [String]
     var enabled: Set<SearchSource>
     var sortOrder = [KeyPathComparator(\TorrentResult.seedSort, order: .reverse), KeyPathComparator(\TorrentResult.title)]
@@ -46,13 +47,15 @@ enum SourceState: Equatable {
     private var searchID = UUID()
     private let service = SearchService()
 
-    init() {
-        recentSearches = UserDefaults.standard.stringArray(forKey: "recentSearches") ?? []
+    init(downloads: DownloadsModel? = nil, defaults: UserDefaults = .standard) {
+        self.downloads = downloads ?? DownloadsModel()
+        self.defaults = defaults
+        recentSearches = defaults.stringArray(forKey: "recentSearches") ?? []
         enabled = SearchSource.restoredSelection(
-            enabled: UserDefaults.standard.stringArray(forKey: "enabledSources"),
-            known: UserDefaults.standard.stringArray(forKey: "knownSources"))
-        UserDefaults.standard.set(SearchSource.allCases.map(\.rawValue), forKey: "knownSources")
-        UserDefaults.standard.set(enabled.map(\.rawValue).sorted(), forKey: "enabledSources")
+            enabled: defaults.stringArray(forKey: "enabledSources"),
+            known: defaults.stringArray(forKey: "knownSources"))
+        defaults.set(SearchSource.allCases.map(\.rawValue), forKey: "knownSources")
+        defaults.set(enabled.map(\.rawValue).sorted(), forKey: "enabledSources")
     }
 
     var visibleResults: [TorrentResult] {
@@ -68,7 +71,7 @@ enum SourceState: Equatable {
 
     func toggle(_ source: SearchSource) {
         if enabled.contains(source) { enabled.remove(source) } else { enabled.insert(source) }
-        UserDefaults.standard.set(enabled.map(\.rawValue).sorted(), forKey: "enabledSources")
+        defaults.set(enabled.map(\.rawValue).sorted(), forKey: "enabledSources")
     }
 
     func search(_ text: String? = nil) {
@@ -90,7 +93,7 @@ enum SourceState: Equatable {
         recentSearches.removeAll { $0.caseInsensitiveCompare(text) == .orderedSame }
         recentSearches.insert(text, at: 0)
         recentSearches = Array(recentSearches.prefix(8))
-        UserDefaults.standard.set(recentSearches, forKey: "recentSearches")
+        defaults.set(recentSearches, forKey: "recentSearches")
         let service = service
         searchTask = Task {
             await withTaskGroup(of: SourceOutcome.self) { group in

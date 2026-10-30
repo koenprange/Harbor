@@ -51,6 +51,22 @@ import HarborCore
         #expect(model.error == nil)
     }
 
+    @Test func releasingModelCancelsItsPollingTask() async throws {
+        var model: DownloadsModel? = try await makeModel()
+        weak var reference: DownloadsModel?
+        reference = model
+        let polling = model!.startPolling()
+        await Task.yield()
+        model = nil
+        for _ in 0..<100 where reference != nil {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(reference == nil)
+        #expect(polling.isCancelled)
+        // Clean up even on a regression, so the test cannot leave a background task.
+        polling.cancel()
+    }
+
     private func makeModel() async throws -> DownloadsModel {
         DelayedRPC.state.reset()
         let configuration = URLSessionConfiguration.ephemeral

@@ -71,6 +71,8 @@ swift run HarborCheck ubuntu
 
 To include live-engine tests, set `HARBOR_TEST_DAEMON` to the absolute path of a Transmission 4.1+ daemon when running `swift test`. These tests use disposable profiles, loopback-only ports and synthetic trackerless torrents. They do not use the normal Harbor profile or Keychain.
 
+For a repeatable native-menu memory workload, run `HARBOR_MEMORY_EXERCISE=1 swift test --build-system native --disable-sandbox --filter MemoryExerciseTests`. It uses synthetic transfers without a daemon or Keychain access; `HARBOR_MEMORY_CYCLES` controls the number of rebuilds (up to 1,000).
+
 The build uses SwiftPM's native backend to work around local signing issues. That backend is deprecated and may need replacing in a future Swift release.
 
 ## License

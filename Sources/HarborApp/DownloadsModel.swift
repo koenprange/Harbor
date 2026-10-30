@@ -28,9 +28,11 @@ import HarborCore
     var busy = false
     var loadingFiles = false
     private var client: TransmissionClient?
-    private var pollTask: Task<Void, Never>?
+    @ObservationIgnored private var pollTask: Task<Void, Never>?
     private var refreshing = false
     private var filesRequest = UUID()
+
+    deinit { pollTask?.cancel() }
 
     init() {
         do {
@@ -74,14 +76,16 @@ import HarborCore
         if setupRequired { showSetup = true }
         else { showSettings = true }
     }
-    func startPolling() {
-        guard pollTask == nil else { return }
-        pollTask = Task { [weak self] in
+    @discardableResult func startPolling() -> Task<Void, Never> {
+        if let pollTask { return pollTask }
+        let task = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.refresh()
                 do { try await Task.sleep(for: .seconds(2)) } catch { return }
             }
         }
+        pollTask = task
+        return task
     }
     func refresh() async {
         guard let client, !refreshing else { return }
